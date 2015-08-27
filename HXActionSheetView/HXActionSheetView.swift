@@ -11,6 +11,8 @@ import UIKit
 
 let kHXActionSheetLabelFontSize:CGFloat = 14
 
+let kFixedHeight:CGFloat = 50
+
 @objc protocol HXActionSheetViewDelegate{
    // Called when a button is clicked. The view will be automatically dismissed after this call returns
   optional func actionSheet(actionSheet: HXActionSheetView, clickedButtonAtIndex buttonIndex: Int)
@@ -37,10 +39,6 @@ class HXActionSheetView:UIView,UIActionSheetDelegate {
 
   private let kScreenHeight                            = {
     return UIScreen.mainScreen().bounds.size.height
-    }()
-
-  private let kFixedHeight:CGFloat                     = {
-    return 40
     }()
 
   private let kDistanceCancleToTable:CGFloat           = {
@@ -213,7 +211,8 @@ class HXActionSheetViewCell: UITableViewCell {
   var descriptionLabel:UILabel = UILabel()
   override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
     super.init(style: style, reuseIdentifier: reuseIdentifier)
-    descriptionLabel.center = self.center
+    println("\(self.bounds) ....\(UIScreen.mainScreen().bounds.size.width)")
+    descriptionLabel.center = CGPointMake(UIScreen.mainScreen().bounds.size.width / 2, kFixedHeight / 2)
     descriptionLabel.bounds = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height)
     descriptionLabel.textColor = UIColor.blackColor()
     descriptionLabel.font = UIFont.systemFontOfSize(kHXActionSheetLabelFontSize)

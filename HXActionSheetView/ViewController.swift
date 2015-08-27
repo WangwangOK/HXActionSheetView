@@ -12,10 +12,10 @@ class ViewController: UIViewController {
 
   override func viewDidLoad() {
     super.viewDidLoad()
-    // Do any additional setup after loading the view, typically from a nib.
   }
+  
   @IBAction func click(sender: UIButton) {
-    let actionSheet:HXActionSheetView = HXActionSheetView(delegate: self, cancelButtonTitle: "取消", otherButtonTitles: "其他", moreButtonTitles: ["使用相册图片","使用手机拍摄","更换头像","更换昵称","更改性别","填入您的公司名称"])
+    let actionSheet:HXActionSheetView = HXActionSheetView(delegate: self, cancelButtonTitle: "取消", otherButtonTitles: "其他", moreButtonTitles: ["使用相册图片","使用手机拍摄","更换头像","填入您的公司名称"])
     actionSheet.show()
   }
 
