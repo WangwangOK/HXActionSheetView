@@ -13,6 +13,7 @@
 		1EBC23C41B8EAFFE00F6DCDA /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1EBC23C31B8EAFFE00F6DCDA /* Images.xcassets */; };
 		1EBC23C71B8EAFFE00F6DCDA /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1EBC23C51B8EAFFE00F6DCDA /* LaunchScreen.xib */; };
 		1EBC23D31B8EAFFE00F6DCDA /* HXActionSheetViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBC23D21B8EAFFE00F6DCDA /* HXActionSheetViewTests.swift */; };
+		1EBC23DD1B8EB13B00F6DCDA /* HXActionSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBC23DC1B8EB13B00F6DCDA /* HXActionSheetView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +37,7 @@
 		1EBC23CC1B8EAFFE00F6DCDA /* HXActionSheetViewTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HXActionSheetViewTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1EBC23D11B8EAFFE00F6DCDA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1EBC23D21B8EAFFE00F6DCDA /* HXActionSheetViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HXActionSheetViewTests.swift; sourceTree = "<group>"; };
+		1EBC23DC1B8EB13B00F6DCDA /* HXActionSheetView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HXActionSheetView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +81,7 @@
 			children = (
 				1EBC23BC1B8EAFFE00F6DCDA /* AppDelegate.swift */,
 				1EBC23BE1B8EAFFE00F6DCDA /* ViewController.swift */,
+				1EBC23DC1B8EB13B00F6DCDA /* HXActionSheetView.swift */,
 				1EBC23C01B8EAFFE00F6DCDA /* Main.storyboard */,
 				1EBC23C31B8EAFFE00F6DCDA /* Images.xcassets */,
 				1EBC23C51B8EAFFE00F6DCDA /* LaunchScreen.xib */,
@@ -213,6 +216,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1EBC23BF1B8EAFFE00F6DCDA /* ViewController.swift in Sources */,
+				1EBC23DD1B8EB13B00F6DCDA /* HXActionSheetView.swift in Sources */,
 				1EBC23BD1B8EAFFE00F6DCDA /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
