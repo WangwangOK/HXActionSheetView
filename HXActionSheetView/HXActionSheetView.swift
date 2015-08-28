@@ -14,7 +14,7 @@ let kHXActionSheetLabelFontSize:CGFloat = 14
 let kFixedHeight:CGFloat = 50
 
 @objc protocol HXActionSheetViewDelegate{
-   // Called when a button is clicked. The view will be automatically dismissed after this call returns
+  // Called when a button is clicked. The view will be automatically dismissed after this call returns
   optional func actionSheet(actionSheet: HXActionSheetView, clickedButtonAtIndex buttonIndex: Int)
   // Called when we cancel a view (eg. the user clicks the Home button). This is not called when the user clicks the cancel button.
   // If not defined in the delegate, we simulate a click in the cancel button
@@ -33,22 +33,24 @@ class HXActionSheetView:UIView,UIActionSheetDelegate {
   
   weak var delegate:HXActionSheetViewDelegate?
   
+  var tapGesture:UITapGestureRecognizer?
+  
   private let kScreenWidth                             = {
     return UIScreen.mainScreen().bounds.size.width
     }()
-
+  
   private let kScreenHeight                            = {
     return UIScreen.mainScreen().bounds.size.height
     }()
-
+  
   private let kDistanceCancleToTable:CGFloat           = {
-      return 5
+    return 5
     }()
-
+  
   private let dequeueReusableCellWithIdentifier:String = {
     return "HXActionSheetIdentifier"
     }()
-
+  
   private let tableView                                = UITableView()
   
   private var cancleButton:UIButton?
@@ -104,19 +106,20 @@ class HXActionSheetView:UIView,UIActionSheetDelegate {
     window.backgroundColor                = UIColor.blackColor().colorWithAlphaComponent(0.3)
     window.windowLevel                    = UIWindowLevelAlert
     window.makeKeyAndVisible()
-    let tapGesture:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "tapWindow:")
-    tapGesture.delegate = self
-    window.addGestureRecognizer(tapGesture)
+    
   }
   
   private func dismiss(buttonIndex:Int?){
+    
+    if buttonIndex != nil {
+      self.delegate?.actionSheet?(self, willDismissWithButtonIndex:buttonIndex!)
+    }
     UIView.animateWithDuration(0.3, delay: 0, options: UIViewAnimationOptions.CurveEaseInOut, animations: { () -> Void in
       self.transform = CGAffineTransformMakeTranslation(0, 0)
       }) { (result:Bool) -> Void in
         if result == false {
           return
         }
-        self.actionWindow.windowLevel = UIWindowLevelNormal
         for subView in self.actionWindow.subviews{
           if let view = subView as? UIView{
             view.removeFromSuperview()
@@ -125,9 +128,13 @@ class HXActionSheetView:UIView,UIActionSheetDelegate {
         if buttonIndex != nil{
           self.delegate?.actionSheet?(self, didDismissWithButtonIndex: buttonIndex!)
         }
-        self.delegate             = nil
-        self.tableView.delegate   = nil
-        self.tableView.dataSource = nil
+        self.delegate                 = nil
+        self.tableView.delegate       = nil
+        self.tableView.dataSource     = nil
+        self.actionWindow.removeGestureRecognizer(self.tapGesture!)
+        self.tapGesture               = nil
+        self.actionWindow.windowLevel = UIWindowLevelNormal
+        self.actionWindow.hidden      = true
     }
   }
   
@@ -137,13 +144,14 @@ class HXActionSheetView:UIView,UIActionSheetDelegate {
     UIView.animateWithDuration(0.3, delay: 0, options: UIViewAnimationOptions.CurveEaseInOut, animations: { () -> Void in
       self.transform = CGAffineTransformMakeTranslation(0, -self.frame.size.height)
       self.delegate?.didPresentActionSheet?(self)
-    }) { (Bool) -> Void in
-      
+      }) { (Bool) -> Void in
+        self.tapGesture = UITapGestureRecognizer(target: self, action: "tapWindow:")
+        self.tapGesture!.delegate = self
+        self.actionWindow.addGestureRecognizer(self.tapGesture!)
     }
   }
   
   func clickButton(sender:UIButton){
-    self.delegate?.actionSheet?(self, willDismissWithButtonIndex: 0)
     dismiss(0)
     self.delegate?.actionSheet?(self, clickedButtonAtIndex: 0)
     self.delegate?.actionSheetCancel?(self)
@@ -190,28 +198,21 @@ extension HXActionSheetView:UITableViewDelegate,UITableViewDataSource{
   func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
     var startIndex = self.cancleButton == nil ? 0 : 1
     self.delegate?.actionSheet?(self, clickedButtonAtIndex: startIndex + indexPath.row)
-    self.delegate?.actionSheet?(self, willDismissWithButtonIndex:startIndex + indexPath.row)
     dismiss(startIndex + indexPath.row)
   }
 }
 
 extension HXActionSheetView:UIGestureRecognizerDelegate{
-  func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldReceiveTouch touch: UITouch) -> Bool {
-    var postition = touch.locationInView(actionWindow)
-    var touchOutside = CGRectContainsPoint(self.bounds, postition)
-    if touchOutside == true{
-      return true
-    }else{
-      return false
-    }
+  override func gestureRecognizerShouldBegin(gestureRecognizer: UIGestureRecognizer) -> Bool {
+    var position = gestureRecognizer.locationInView(self)
+    return position.y < 0 ? true : false
   }
 }
 
-class HXActionSheetViewCell: UITableViewCell {
+private class HXActionSheetViewCell: UITableViewCell {
   var descriptionLabel:UILabel = UILabel()
   override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
     super.init(style: style, reuseIdentifier: reuseIdentifier)
-    println("\(self.bounds) ....\(UIScreen.mainScreen().bounds.size.width)")
     descriptionLabel.center = CGPointMake(UIScreen.mainScreen().bounds.size.width / 2, kFixedHeight / 2)
     descriptionLabel.bounds = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height)
     descriptionLabel.textColor = UIColor.blackColor()
@@ -219,8 +220,8 @@ class HXActionSheetViewCell: UITableViewCell {
     descriptionLabel.textAlignment = NSTextAlignment.Center
     self.contentView.addSubview(descriptionLabel)
   }
-
+  
   required init(coder aDecoder: NSCoder) {
-      fatalError("init(coder:) has not been implemented")
+    fatalError("init(coder:) has not been implemented")
   }
 }
