@@ -15,7 +15,7 @@ class ViewController: UIViewController {
   }
   
   @IBAction func click(sender: UIButton) {
-    let actionSheet:HXActionSheetView = HXActionSheetView(delegate: self, cancelButtonTitle: "取消", otherButtonTitles: "其他", moreButtonTitles: ["使用相册图片","使用手机拍摄","更换头像","填入您的公司名称"])
+    let actionSheet:HXActionSheetView = HXActionSheetView(delegate: self, cancelButtonTuple: (text:"取消",font:nil,color:nil), otherButtonTuple: (text:"其他",font:nil,color:nil), moreButtonTuple: [(text:"使用相册图片",font:nil,color:nil),(text:"使用手机拍摄",font:nil,color:nil),(text:"更换头像",font:nil,color:nil)])
     actionSheet.show()
   }
 

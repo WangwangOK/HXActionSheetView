@@ -29,6 +29,8 @@ let kFixedHeight:CGFloat = 50
   optional func actionSheet(actionSheet: HXActionSheetView, didDismissWithButtonIndex buttonIndex: Int) // after animation
 }
 
+typealias HXActionSheetLabelTuple = (text:String,font:UIFont?,color:UIColor?)
+
 class HXActionSheetView:UIView,UIActionSheetDelegate {
   
   weak var delegate:HXActionSheetViewDelegate?
@@ -57,18 +59,18 @@ class HXActionSheetView:UIView,UIActionSheetDelegate {
   
   private let actionWindow:UIWindow = UIWindow()
   
-  private var dataSource:Array<String> = []
+  private var dataSource:Array<HXActionSheetLabelTuple> = []
   
-  convenience init(delegate: HXActionSheetViewDelegate?, cancelButtonTitle: String?, otherButtonTitles: String, moreButtonTitles: [String]){
+  convenience init(delegate: HXActionSheetViewDelegate?, cancelButtonTuple: HXActionSheetLabelTuple?, otherButtonTuple: HXActionSheetLabelTuple, moreButtonTuple: [HXActionSheetLabelTuple]){
     self.init()
     self.delegate        = delegate == nil ? nil : delegate
-    dataSource.append(otherButtonTitles)
-    for title in moreButtonTitles{
-      dataSource.append(title)
+    dataSource.append(otherButtonTuple)
+    for tuple in moreButtonTuple{
+      dataSource.append(tuple)
     }
     setupWith(self.tableView)
-    setupWith(cancelButtonTitle, tableView: self.tableView)
-    self.frame           = cancelButtonTitle == nil ? CGRectMake(0, kScreenHeight, kScreenWidth, self.tableView.frame.size.height) : CGRectMake(0, kScreenHeight, kScreenWidth, self.tableView.frame.size.height + kFixedHeight + kDistanceCancleToTable)
+    setupWith(cancelButtonTuple, tableView: self.tableView)
+    self.frame           = cancelButtonTuple == nil ? CGRectMake(0, kScreenHeight, kScreenWidth, self.tableView.frame.size.height) : CGRectMake(0, kScreenHeight, kScreenWidth, self.tableView.frame.size.height + kFixedHeight + kDistanceCancleToTable)
     self.backgroundColor = UIColor(red: 227.0 / 255.0, green: 227.0 / 255.0, blue: 229.0 / 255.0, alpha: 1.0)
   }
   
@@ -85,16 +87,17 @@ class HXActionSheetView:UIView,UIActionSheetDelegate {
     self.addSubview(tableView)
   }
   
-  private func setupWith(cancelButtonTitle:String?,tableView:UITableView){
-    if cancelButtonTitle == nil {
+  private func setupWith(cancelButtonTuple:HXActionSheetLabelTuple?,tableView:UITableView){
+    if cancelButtonTuple == nil {
       return
     }
     self.cancleButton                        = UIButton()
     self.cancleButton!.backgroundColor       = UIColor.whiteColor()
     self.cancleButton!.frame                 = CGRectMake(0, tableView.frame.size.height + kDistanceCancleToTable, kScreenWidth, kFixedHeight)
-    self.cancleButton!.setTitle(cancelButtonTitle!, forState: UIControlState.Normal)
-    self.cancleButton!.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
-    self.cancleButton!.titleLabel!.font      = UIFont.systemFontOfSize(kHXActionSheetLabelFontSize)
+    self.cancleButton!.setTitle(cancelButtonTuple!.text, forState: UIControlState.Normal)
+    let textColor                            = cancelButtonTuple!.color == nil ? UIColor.blackColor() : cancelButtonTuple!.color
+    self.cancleButton!.setTitleColor(textColor, forState: UIControlState.Normal)
+    self.cancleButton!.titleLabel!.font      = cancelButtonTuple!.font == nil ? UIFont.systemFontOfSize(kHXActionSheetLabelFontSize) : cancelButtonTuple!.font
     self.cancleButton!.titleLabel!.textColor = UIColor.darkGrayColor()
     self.cancleButton!.addTarget(self, action: "clickButton:", forControlEvents: UIControlEvents.TouchUpInside)
     self.addSubview(self.cancleButton!)
@@ -184,7 +187,7 @@ extension HXActionSheetView:UITableViewDelegate,UITableViewDataSource{
       cell = HXActionSheetViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: dequeueReusableCellWithIdentifier)
     }
     cell!.selectionStyle = UITableViewCellSelectionStyle.None
-    cell!.descriptionLabel.text = self.dataSource.reverse()[indexPath.row]
+    cell!.setup(self.dataSource.reverse()[indexPath.row])
     return cell!
   }
   
@@ -215,8 +218,6 @@ private class HXActionSheetViewCell: UITableViewCell {
     super.init(style: style, reuseIdentifier: reuseIdentifier)
     descriptionLabel.center = CGPointMake(UIScreen.mainScreen().bounds.size.width / 2, kFixedHeight / 2)
     descriptionLabel.bounds = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height)
-    descriptionLabel.textColor = UIColor.blackColor()
-    descriptionLabel.font = UIFont.systemFontOfSize(kHXActionSheetLabelFontSize)
     descriptionLabel.textAlignment = NSTextAlignment.Center
     self.contentView.addSubview(descriptionLabel)
   }
@@ -224,4 +225,16 @@ private class HXActionSheetViewCell: UITableViewCell {
   required init(coder aDecoder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
+  
+  func setup(tuple:HXActionSheetLabelTuple?){
+    if tuple == nil {
+      return
+    }
+    descriptionLabel.textColor = tuple!.color == nil ? UIColor.blackColor() : tuple!.color
+    
+    descriptionLabel.font = tuple!.font == nil ? UIFont.systemFontOfSize(kHXActionSheetLabelFontSize) : tuple!.font
+    
+    descriptionLabel.text = tuple!.text
+  }
 }
+
