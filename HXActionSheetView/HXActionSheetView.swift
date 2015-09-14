@@ -53,7 +53,22 @@ class HXActionSheetView:UIView,UIActionSheetDelegate {
     return "HXActionSheetIdentifier"
     }()
   
-  private let tableView                                = UITableView()
+  private let tableView:UITableView = UITableView(frame: CGRectZero, style: UITableViewStyle.Grouped)
+  
+  private var titletuple:HXActionSheetLabelTuple?
+  
+  private let titleViewwidth:CGFloat = CGRectGetWidth(UIScreen.mainScreen().bounds) - 20
+  
+  private var titleViewheight:CGFloat {
+    
+    if self.titletuple == nil {
+      return 0
+    }
+    let text = self.titletuple!.text as NSString
+    let font = titletuple!.font == nil ? UIFont.systemFontOfSize(kHXActionSheetLabelFontSize) : titletuple!.font!
+    let height = text.boundingRectWithSize(CGSizeMake(titleViewwidth, 10000), options: NSStringDrawingOptions.TruncatesLastVisibleLine | NSStringDrawingOptions.UsesLineFragmentOrigin | NSStringDrawingOptions.UsesFontLeading, attributes: [NSFontAttributeName:font], context: nil).height
+    return height + 10 >= kFixedHeight ? height + 10 : kFixedHeight
+  }
   
   private var cancleButton:UIButton?
   
@@ -61,9 +76,10 @@ class HXActionSheetView:UIView,UIActionSheetDelegate {
   
   private var dataSource:Array<HXActionSheetLabelTuple> = []
   
-  convenience init(delegate: HXActionSheetViewDelegate?, cancelButtonTuple: HXActionSheetLabelTuple?, otherButtonTuple: HXActionSheetLabelTuple, moreButtonTuple: [HXActionSheetLabelTuple]){
+  convenience init(delegate: HXActionSheetViewDelegate?, titleTuple:HXActionSheetLabelTuple?,cancelButtonTuple: HXActionSheetLabelTuple?, otherButtonTuple: HXActionSheetLabelTuple, moreButtonTuple: [HXActionSheetLabelTuple]){
     self.init()
-    self.delegate        = delegate == nil ? nil : delegate
+    self.delegate   = delegate == nil ? nil : delegate
+    self.titletuple = titleTuple == nil ? nil : titleTuple!
     dataSource.append(otherButtonTuple)
     for tuple in moreButtonTuple{
       dataSource.append(tuple)
@@ -75,15 +91,17 @@ class HXActionSheetView:UIView,UIActionSheetDelegate {
   }
   
   private func setupWith(tableView:UITableView){
-    tableView.delegate       = self
-    tableView.dataSource     = self
-    tableView.rowHeight      = kFixedHeight
+    tableView.delegate                     = self
+    tableView.dataSource                   = self
+    tableView.tableHeaderView              = UIView(frame: CGRectMake(0, 0, 0, CGFloat.min))
+    tableView.backgroundColor              = UIColor.whiteColor()
+    tableView.rowHeight                    = kFixedHeight
     tableView.showsVerticalScrollIndicator = false
-    tableView.separatorInset = UIEdgeInsetsMake(0, 0, 0, 0)
-    let height               = CGFloat(self.dataSource.count) * kFixedHeight < kScreenHeight / 2 ? CGFloat(self.dataSource.count) * kFixedHeight : kScreenHeight / 2
-    let iscanScroll          = CGFloat(self.dataSource.count) * kFixedHeight < kScreenHeight / 2 ? false : true
-    tableView.scrollEnabled  = iscanScroll
-    tableView.frame          = CGRectMake(0, 0, kScreenWidth, height)
+    tableView.separatorInset               = UIEdgeInsetsMake(0, 0, 0, 0)
+    let height                             = CGFloat(self.dataSource.count) * kFixedHeight + titleViewheight < kScreenHeight / 2 ? CGFloat(self.dataSource.count) * kFixedHeight + titleViewheight : kScreenHeight / 2
+    let iscanScroll                        = CGFloat(self.dataSource.count) * kFixedHeight + titleViewheight <= kScreenHeight / 2 ? false : true
+    tableView.scrollEnabled                = iscanScroll
+    tableView.frame                        = CGRectMake(0, 0, kScreenWidth, height)
     self.addSubview(tableView)
   }
   
@@ -109,7 +127,6 @@ class HXActionSheetView:UIView,UIActionSheetDelegate {
     window.backgroundColor                = UIColor.blackColor().colorWithAlphaComponent(0.3)
     window.windowLevel                    = UIWindowLevelAlert
     window.makeKeyAndVisible()
-    
   }
   
   private func dismiss(buttonIndex:Int?){
@@ -134,6 +151,7 @@ class HXActionSheetView:UIView,UIActionSheetDelegate {
         self.delegate                 = nil
         self.tableView.delegate       = nil
         self.tableView.dataSource     = nil
+        self.tableView.removeFromSuperview()
         self.actionWindow.removeGestureRecognizer(self.tapGesture!)
         self.tapGesture               = nil
         self.actionWindow.windowLevel = UIWindowLevelNormal
@@ -148,7 +166,7 @@ class HXActionSheetView:UIView,UIActionSheetDelegate {
       self.transform = CGAffineTransformMakeTranslation(0, -self.frame.size.height)
       self.delegate?.didPresentActionSheet?(self)
       }) { (Bool) -> Void in
-        self.tapGesture = UITapGestureRecognizer(target: self, action: "tapWindow:")
+        self.tapGesture           = UITapGestureRecognizer(target: self, action: "tapWindow:")
         self.tapGesture!.delegate = self
         self.actionWindow.addGestureRecognizer(self.tapGesture!)
     }
@@ -203,7 +221,41 @@ extension HXActionSheetView:UITableViewDelegate,UITableViewDataSource{
     self.delegate?.actionSheet?(self, clickedButtonAtIndex: startIndex + indexPath.row)
     dismiss(startIndex + indexPath.row)
   }
+  
+  func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+
+    return titleViewheight
+  }
+  
+  func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+    if self.titletuple == nil {
+      return nil
+    }
+    let titleView = UIView()
+    titleView.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.01)
+    let titlelabel            = UILabel()
+    func addtitlelabelWithHeader(){
+      titlelabel.text          = titletuple!.text
+      titlelabel.numberOfLines = 0
+      titlelabel.textAlignment = NSTextAlignment.Center
+      titlelabel.font          = titletuple!.font == nil ? UIFont.systemFontOfSize(kHXActionSheetLabelFontSize) : titletuple!.font!
+      titlelabel.textColor     = titletuple!.color == nil ? UIColor.blackColor() : titletuple!.color!
+      titlelabel.center        = CGPointMake(CGRectGetWidth(UIScreen.mainScreen().bounds) / 2, titleViewheight / 2)
+      titlelabel.bounds        = CGRectMake(0, 0, titleViewwidth, titleViewheight - 10)
+    }
+    addtitlelabelWithHeader()
+    let lineview = UIView(frame: CGRectMake(0, titleViewheight - 1, CGRectGetWidth(UIScreen.mainScreen().bounds), 0.1))
+    lineview.backgroundColor = UIColor.blackColor().colorWithAlphaComponent(0.1)
+    titleView.addSubview(lineview)
+    titleView.addSubview(titlelabel)
+    return titleView
+  }
+  
+  func tableView(tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+    return CGFloat.min
+  }
 }
+
 
 extension HXActionSheetView:UIGestureRecognizerDelegate{
   override func gestureRecognizerShouldBegin(gestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -219,6 +271,7 @@ private class HXActionSheetViewCell: UITableViewCell {
     descriptionLabel.center = CGPointMake(UIScreen.mainScreen().bounds.size.width / 2, kFixedHeight / 2)
     descriptionLabel.bounds = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height)
     descriptionLabel.textAlignment = NSTextAlignment.Center
+    descriptionLabel.numberOfLines = 2
     self.contentView.addSubview(descriptionLabel)
   }
   
