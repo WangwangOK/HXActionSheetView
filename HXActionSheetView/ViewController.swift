@@ -27,27 +27,27 @@ class ViewController: UIViewController {
 
 extension ViewController:HXActionSheetViewDelegate{
   func actionSheet(actionSheet: HXActionSheetView, clickedButtonAtIndex buttonIndex: Int) {
-    println("clickedButtonAtIndex : \(buttonIndex)")
+    print("clickedButtonAtIndex : \(buttonIndex)")
   }
   
   func willPresentActionSheet(actionSheet: HXActionSheetView) {
-    println("willPresentActionSheet")
+    print("willPresentActionSheet")
   }
   
   func didPresentActionSheet(actionSheet: HXActionSheetView) {
-    println("didPresentActionSheet")
+    print("didPresentActionSheet")
   }
   
   func actionSheet(actionSheet: HXActionSheetView, didDismissWithButtonIndex buttonIndex: Int) {
-    println("didDismissWithButtonIndex : \(buttonIndex)")
+    print("didDismissWithButtonIndex : \(buttonIndex)")
   }
   
   func actionSheet(actionSheet: HXActionSheetView, willDismissWithButtonIndex buttonIndex: Int) {
-    println("willDismissWithButtonIndex : \(buttonIndex)")
+    print("willDismissWithButtonIndex : \(buttonIndex)")
   }
   
   func actionSheetCancel(actionSheet: HXActionSheetView) {
-    println("actionSheetCancel")
+    print("actionSheetCancel")
   }
 }
 

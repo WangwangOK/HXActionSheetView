@@ -66,7 +66,7 @@ class HXActionSheetView:UIView,UIActionSheetDelegate {
     }
     let text = self.titletuple!.text as NSString
     let font = titletuple!.font == nil ? UIFont.systemFontOfSize(kHXActionSheetLabelFontSize) : titletuple!.font!
-    let height = text.boundingRectWithSize(CGSizeMake(titleViewwidth, 10000), options: NSStringDrawingOptions.TruncatesLastVisibleLine | NSStringDrawingOptions.UsesLineFragmentOrigin | NSStringDrawingOptions.UsesFontLeading, attributes: [NSFontAttributeName:font], context: nil).height
+    let height = text.boundingRectWithSize(CGSizeMake(titleViewwidth, 10000), options: [NSStringDrawingOptions.TruncatesLastVisibleLine, NSStringDrawingOptions.UsesLineFragmentOrigin, NSStringDrawingOptions.UsesFontLeading], attributes: [NSFontAttributeName:font], context: nil).height
     return height + 10 >= kFixedHeight ? height + 10 : kFixedHeight
   }
   
@@ -130,7 +130,6 @@ class HXActionSheetView:UIView,UIActionSheetDelegate {
   }
   
   private func dismiss(buttonIndex:Int?){
-    
     if buttonIndex != nil {
       self.delegate?.actionSheet?(self, willDismissWithButtonIndex:buttonIndex!)
     }
@@ -141,9 +140,7 @@ class HXActionSheetView:UIView,UIActionSheetDelegate {
           return
         }
         for subView in self.actionWindow.subviews{
-          if let view = subView as? UIView{
-            view.removeFromSuperview()
-          }
+          subView.removeFromSuperview()
         }
         if buttonIndex != nil{
           self.delegate?.actionSheet?(self, didDismissWithButtonIndex: buttonIndex!)
@@ -184,8 +181,10 @@ class HXActionSheetView:UIView,UIActionSheetDelegate {
   
   override func layoutSubviews() {
     self.tableView.separatorInset = UIEdgeInsetsZero
-    if  ((UIDevice.currentDevice().systemVersion) as NSString).floatValue >= 8.0 {
+    if #available(iOS 8.0, *) {
       self.tableView.layoutMargins = UIEdgeInsetsZero
+    } else {
+      // Fallback on earlier versions
     }
   }
 }
@@ -205,19 +204,21 @@ extension HXActionSheetView:UITableViewDelegate,UITableViewDataSource{
       cell = HXActionSheetViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: dequeueReusableCellWithIdentifier)
     }
     cell!.selectionStyle = UITableViewCellSelectionStyle.None
-    cell!.setup(self.dataSource.reverse()[indexPath.row])
+    cell!.setup(Array(self.dataSource.reverse())[indexPath.row])
     return cell!
   }
   
   func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
     cell.separatorInset = UIEdgeInsetsZero
-    if  ((UIDevice.currentDevice().systemVersion) as NSString).floatValue >= 8.0 {
+    if #available(iOS 8.0, *) {
       cell.layoutMargins = UIEdgeInsetsZero
+    } else {
+      // Fallback on earlier versions
     }
   }
   
   func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-    var startIndex = self.cancleButton == nil ? 0 : 1
+    let startIndex = self.cancleButton == nil ? 0 : 1
     self.delegate?.actionSheet?(self, clickedButtonAtIndex: startIndex + indexPath.row)
     dismiss(startIndex + indexPath.row)
   }
@@ -259,7 +260,7 @@ extension HXActionSheetView:UITableViewDelegate,UITableViewDataSource{
 
 extension HXActionSheetView:UIGestureRecognizerDelegate{
   override func gestureRecognizerShouldBegin(gestureRecognizer: UIGestureRecognizer) -> Bool {
-    var position = gestureRecognizer.locationInView(self)
+    let position = gestureRecognizer.locationInView(self)
     return position.y < 0 ? true : false
   }
 }
@@ -275,7 +276,7 @@ private class HXActionSheetViewCell: UITableViewCell {
     self.contentView.addSubview(descriptionLabel)
   }
   
-  required init(coder aDecoder: NSCoder) {
+  required init?(coder aDecoder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
   
